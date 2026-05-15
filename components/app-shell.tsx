@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { GeminiChatProvider } from "@/components/gemini-chat-context";
 import { Header } from "@/components/header";
 import { OpenSignUpProvider } from "@/components/sign-up-dialog-context";
 import { SignUpDialog } from "@/components/signup-dialog";
@@ -11,9 +12,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <OpenSignUpProvider open={openSignUp}>
-      <Header onSignUpClick={openSignUp} />
-      {children}
-      <SignUpDialog open={signUpOpen} onOpenChange={setSignUpOpen} />
+      <GeminiChatProvider>
+        <Header onSignUpClick={openSignUp} />
+        {children}
+        <SignUpDialog open={signUpOpen} onOpenChange={setSignUpOpen} />
+      </GeminiChatProvider>
     </OpenSignUpProvider>
   );
 }

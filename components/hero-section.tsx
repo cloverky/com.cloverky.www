@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { BottomRightStack } from "@/components/bottom-right-stack";
 import { useOpenSignUp } from "@/components/sign-up-dialog-context";
 import { ArrowRight, Bot, ChefHat, Package } from "lucide-react";
 
@@ -116,6 +117,8 @@ export function HeroSection() {
           </div>
         </div>
       </div>
+
+      <BottomRightStack />
     </section>
   );
 }
