@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Bot, Refrigerator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GeminiChatDialog } from "@/components/gemini-chat-dialog";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
@@ -16,8 +17,9 @@ export function Header({ onSignUpClick }: HeaderProps) {
 
   return (
     <>
+    <ThemeToggle className="fixed top-4 right-4 z-[60] shadow-sm md:right-6" />
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <div className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Refrigerator className="h-6 w-6 text-accent" />
@@ -25,17 +27,35 @@ export function Header({ onSignUpClick }: HeaderProps) {
           </Link>
         </div>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          <Link href="/#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+        <nav
+          className={cn(
+            "pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2",
+            "items-center gap-8 md:flex",
+          )}
+          aria-label="주요 메뉴"
+        >
+          <Link
+            href="/#features"
+            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
             기능
           </Link>
-          <Link href="/#agents" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <Link
+            href="/#agents"
+            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
             에이전트
           </Link>
-          <Link href="/#architecture" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <Link
+            href="/#architecture"
+            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
             아키텍처
           </Link>
-          <Link href="/#contact" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+          <Link
+            href="/#contact"
+            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
             문의
           </Link>
         </nav>
@@ -56,20 +76,24 @@ export function Header({ onSignUpClick }: HeaderProps) {
             <Bot className="h-5 w-5" strokeWidth={1.85} aria-hidden />
           </button>
           <Button
-            onClick={onSignUpClick}
-            className="bg-foreground text-background hover:bg-foreground/90"
-          >
-            회원가입
-          </Button>
-          <Button
             variant="outline"
             className="border-border bg-transparent text-foreground hover:bg-secondary"
             asChild
           >
             <Link href="/titanic">[타이타닉]</Link>
           </Button>
-          <Button variant="outline" className="border-border bg-transparent text-foreground hover:bg-secondary">
-            로그인
+          <Button
+            variant="outline"
+            className="border-border bg-transparent text-foreground hover:bg-secondary"
+            asChild
+          >
+            <Link href="/login">로그인</Link>
+          </Button>
+          <Button
+            onClick={onSignUpClick}
+            className="bg-foreground text-background hover:bg-foreground/90"
+          >
+            회원가입
           </Button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import {
   Dialog,
@@ -138,13 +139,13 @@ export function SignUpDialog({ open, onOpenChange }: SignUpDialogProps) {
 
           <p className="text-center text-sm text-muted-foreground">
             이미 계정이 있으신가요?{" "}
-            <button
-              type="button"
+            <Link
+              href="/login"
               className="text-foreground underline hover:text-accent"
               onClick={() => onOpenChange(false)}
             >
               로그인
-            </button>
+            </Link>
           </p>
         </form>
       </DialogContent>

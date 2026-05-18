@@ -1,9 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
-import { fetchWeather, weatherIconUrl, type WeatherData } from "@/lib/weather-api";
+import {
+  Cloud,
+  CloudFog,
+  CloudLightning,
+  CloudMoon,
+  CloudRain,
+  CloudSnow,
+  CloudSun,
+  Loader2,
+  Moon,
+  Sun,
+  type LucideIcon,
+} from "lucide-react";
+import { fetchWeather, type WeatherData } from "@/lib/weather-api";
 import { cn } from "@/lib/utils";
+
+function weatherIconForCode(icon: string): LucideIcon {
+  const code = icon.slice(0, 2);
+  if (code === "01") return icon.endsWith("n") ? Moon : Sun;
+  if (code === "02") return icon.endsWith("n") ? CloudMoon : CloudSun;
+  if (code === "03" || code === "04") return Cloud;
+  if (code === "09" || code === "10") return CloudRain;
+  if (code === "11") return CloudLightning;
+  if (code === "13") return CloudSnow;
+  if (code === "50") return CloudFog;
+  return Cloud;
+}
 
 export function WeatherWidget() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
@@ -35,6 +59,8 @@ export function WeatherWidget() {
     };
   }, []);
 
+  const Icon = weather ? weatherIconForCode(weather.icon) : null;
+
   return (
     <aside
       className={cn(
@@ -53,16 +79,14 @@ export function WeatherWidget() {
 
       {!loading && error && <span className="text-destructive/80">날씨 불가</span>}
 
-      {!loading && weather && (
+      {!loading && weather && Icon && (
         <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={weatherIconUrl(weather.icon)}
-            alt=""
-            width={28}
-            height={28}
-            className="h-7 w-7 shrink-0 object-contain"
-          />
+          <span
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted/90 ring-1 ring-border/50"
+            aria-hidden
+          >
+            <Icon className="h-4 w-4 text-accent" strokeWidth={2} />
+          </span>
           <span className="font-medium text-foreground tabular-nums">
             {Math.round(weather.temp_c)}°
           </span>
