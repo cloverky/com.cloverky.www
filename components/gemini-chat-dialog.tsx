@@ -1,12 +1,12 @@
 ﻿"use client";
 
 import { useCallback } from "react";
-import { Loader2, SendHorizontal, Sparkles } from "lucide-react";
+import { Loader2, SendHorizontal } from "lucide-react";
+import { CloverIcon } from "@/components/clover-icon";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -127,31 +127,17 @@ export function GeminiChatDialog({ open, onOpenChange }: GeminiChatDialogProps) 
           "bg-card shadow-[0_28px_56px_-20px_rgba(0,0,0,0.85)] ring-1 ring-white/[0.06]",
         )}
       >
-        <DialogHeader className="relative space-y-3 border-b border-border/60 px-6 py-5 text-left">
+        <DialogHeader className="relative border-b border-border/60 px-6 py-4 text-left">
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-br from-accent/[0.14] via-transparent to-transparent"
             aria-hidden
           />
           <DialogTitle className="relative flex items-center gap-3 text-xl font-semibold leading-tight tracking-tight">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent ring-1 ring-accent/25">
-              <Sparkles className="h-5 w-5" strokeWidth={2} aria-hidden />
+              <CloverIcon className="h-5 w-5" strokeWidth={2} />
             </span>
             Gemini
           </DialogTitle>
-          <DialogDescription asChild>
-            <div className="relative max-w-lg pl-[3.25rem] text-sm leading-relaxed text-muted-foreground [word-break:keep-all]">
-              <p>
-                Enter 로 전송,
-                <br />
-                Shift+Enter 로 줄 바꿈.
-              </p>
-              <p className="mt-3">
-                백엔드 FastAPI 의 POST /chat (Gemini) 로 연결됩니다.
-                <br />
-                <span className="whitespace-nowrap">backend/.env 의 GEMINI_API_KEY 가 필요합니다.</span>
-              </p>
-            </div>
-          </DialogDescription>
         </DialogHeader>
 
         <div
@@ -165,8 +151,6 @@ export function GeminiChatDialog({ open, onOpenChange }: GeminiChatDialogProps) 
             <div className="m-auto flex max-w-md flex-col items-center gap-3 px-3 py-10 text-center">
               <p className="text-lg font-medium leading-snug text-foreground">무엇을 도와드릴까요?</p>
               <p className="text-pretty text-sm leading-[1.7] text-muted-foreground [word-break:keep-all]">
-                Gemini 2.5 Flash 로 FridgeAI 이용법,
-                <br />
                 레시피·재고 관리 등{" "}
                 <span className="whitespace-nowrap">편하게 물어보세요.</span>
               </p>

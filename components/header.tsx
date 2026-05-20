@@ -2,23 +2,29 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bot, Refrigerator } from "lucide-react";
+import { Refrigerator } from "lucide-react";
+import { CloverIcon } from "@/components/clover-icon";
 import { Button } from "@/components/ui/button";
 import { GeminiChatDialog } from "@/components/gemini-chat-dialog";
+import { useAuth } from "@/components/auth-context";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { HeaderNavDropdown } from "@/components/header-nav-dropdown";
+import { HEADER_NAV_MENUS } from "@/lib/header-nav";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
   onSignUpClick: () => void;
+  onLoginClick: () => void;
 }
 
-export function Header({ onSignUpClick }: HeaderProps) {
+export function Header({ onSignUpClick, onLoginClick }: HeaderProps) {
+  const { user, logout } = useAuth();
   const [geminiOpen, setGeminiOpen] = useState(false);
 
   return (
     <>
     <ThemeToggle className="fixed top-4 right-4 z-[60] shadow-sm md:right-6" />
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+    <header className="fixed top-0 left-0 right-0 z-50 overflow-visible border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="relative mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
@@ -29,35 +35,14 @@ export function Header({ onSignUpClick }: HeaderProps) {
 
         <nav
           className={cn(
-            "pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2",
-            "items-center gap-8 md:flex",
+            "absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2",
+            "items-center gap-6 md:flex",
           )}
           aria-label="주요 메뉴"
         >
-          <Link
-            href="/#features"
-            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            기능
-          </Link>
-          <Link
-            href="/#agents"
-            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            에이전트
-          </Link>
-          <Link
-            href="/#architecture"
-            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            아키텍처
-          </Link>
-          <Link
-            href="/#contact"
-            className="pointer-events-auto text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            문의
-          </Link>
+          {HEADER_NAV_MENUS.map((menu) => (
+            <HeaderNavDropdown key={menu.label} menu={menu} />
+          ))}
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-4">
@@ -73,7 +58,7 @@ export function Header({ onSignUpClick }: HeaderProps) {
             )}
             aria-label="Gemini 채팅 열기"
           >
-            <Bot className="h-5 w-5" strokeWidth={1.85} aria-hidden />
+            <CloverIcon className="h-5 w-5" strokeWidth={1.85} />
           </button>
           <Button
             variant="outline"
@@ -82,19 +67,53 @@ export function Header({ onSignUpClick }: HeaderProps) {
           >
             <Link href="/titanic">[타이타닉]</Link>
           </Button>
-          <Button
-            variant="outline"
-            className="border-border bg-transparent text-foreground hover:bg-secondary"
-            asChild
-          >
-            <Link href="/login">로그인</Link>
-          </Button>
-          <Button
-            onClick={onSignUpClick}
-            className="bg-foreground text-background hover:bg-foreground/90"
-          >
-            회원가입
-          </Button>
+          {user ? (
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="max-w-[8rem] truncate text-sm font-medium text-foreground sm:max-w-[12rem]">
+                {user.username}님
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-border bg-transparent text-foreground hover:bg-secondary"
+                onClick={logout}
+              >
+                로그아웃
+              </Button>
+            </div>
+          ) : (
+            <>
+              <form
+                className="inline"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onLoginClick();
+                }}
+              >
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="border-border bg-transparent text-foreground hover:bg-secondary"
+                >
+                  로그인
+                </Button>
+              </form>
+              <form
+                className="inline"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  onSignUpClick();
+                }}
+              >
+                <Button
+                  type="submit"
+                  className="bg-foreground text-background hover:bg-foreground/90"
+                >
+                  회원가입
+                </Button>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </header>

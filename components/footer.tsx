@@ -13,7 +13,7 @@ export function Footer() {
               <span className="text-xl font-bold text-foreground">FridgeAI</span>
             </div>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
-              AI 멀티 에이전트 기반 냉장고 재고 관리 및 개인화 레시피 서비스로 
+              AI 기반 냉장고 재고 관리 및 맞춤 레시피 서비스로 
               더 스마트한 주방 생활을 경험하세요.
             </p>
           </div>
@@ -22,8 +22,8 @@ export function Footer() {
             <h3 className="font-semibold text-foreground">서비스</h3>
             <ul className="mt-4 space-y-2">
               <li><a href="#features" className="text-sm text-muted-foreground hover:text-foreground">기능</a></li>
-              <li><a href="#agents" className="text-sm text-muted-foreground hover:text-foreground">에이전트</a></li>
-              <li><a href="#architecture" className="text-sm text-muted-foreground hover:text-foreground">아키텍처</a></li>
+              <li><a href="#agents" className="text-sm text-muted-foreground hover:text-foreground">AI 도우미</a></li>
+              <li><a href="#architecture" className="text-sm text-muted-foreground hover:text-foreground">서비스 구성</a></li>
               <li><a href="#" className="text-sm text-muted-foreground hover:text-foreground">API 문서</a></li>
             </ul>
           </div>
