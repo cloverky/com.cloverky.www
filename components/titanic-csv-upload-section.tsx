@@ -145,7 +145,7 @@ export function TitanicCsvUploadSection({
     return (
       <section
         id="titanic-csv-upload"
-        className="w-full max-w-2xl border-neutral-200 bg-white py-8"
+        className="mx-auto w-full max-w-4xl py-8"
       >
         <input
           ref={inputRef}
@@ -157,10 +157,10 @@ export function TitanicCsvUploadSection({
         />
 
         <div className="mb-4 text-center">
-          <h2 className="text-xl font-semibold text-neutral-900">
+          <h2 className="text-xl font-semibold text-foreground">
             {EXPECTED_FILENAME} 업로드
           </h2>
-          <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-neutral-600">
+          <p className="mx-auto mt-2 w-full text-center text-sm leading-relaxed text-muted-foreground sm:whitespace-nowrap sm:text-base">
             아래 점선 영역에 파일을 끌어다 놓거나, 업로드 버튼을 눌러 파일을 선택할 수 있습니다.
           </p>
         </div>
@@ -170,27 +170,27 @@ export function TitanicCsvUploadSection({
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
           className={cn(
-            "flex min-h-[200px] flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors",
+            "flex min-h-[200px] w-full flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors",
             ui.dragOver
               ? "border-accent bg-accent/10"
-              : "border-neutral-300 bg-neutral-50/80 hover:border-neutral-400",
+              : "border-border bg-muted/30 hover:border-accent/40",
             ui.busy && "pointer-events-none opacity-60",
           )}
         >
-          <Upload className="mb-3 h-10 w-10 text-neutral-500" />
-          <span className="text-sm font-medium leading-relaxed text-neutral-900">
+          <Upload className="mb-3 h-10 w-10 text-muted-foreground" />
+          <span className="text-sm font-medium leading-relaxed text-foreground">
             이 영역으로 CSV를 드래그해서 놓아 주세요
           </span>
-          <span className="mt-2 text-sm leading-relaxed text-neutral-600">
+          <span className="mt-2 text-sm leading-relaxed text-muted-foreground">
             권장 파일 이름: {EXPECTED_FILENAME}
           </span>
         </div>
 
-        <div className="mt-6 flex justify-center">
+        <div className="mt-6 flex w-full justify-center">
           <Button
             type="button"
             size="lg"
-            className="min-w-[200px] bg-neutral-900 text-white hover:bg-neutral-800"
+            className="min-w-[200px] bg-foreground text-background hover:bg-foreground/90"
             disabled={ui.busy}
             onClick={() => inputRef.current?.click()}
           >
@@ -205,7 +205,7 @@ export function TitanicCsvUploadSection({
         )}
 
         {ui.status?.kind === "ok" && (
-          <div className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-4 text-center text-sm leading-relaxed text-neutral-900">
+          <div className="mt-6 w-full rounded-lg border border-border bg-muted/40 px-4 py-4 text-center text-sm leading-relaxed text-foreground">
             <p className="font-semibold">처리가 완료되었습니다</p>
             <p className="mt-2 text-neutral-700">
               파일 이름: {ui.status.name}

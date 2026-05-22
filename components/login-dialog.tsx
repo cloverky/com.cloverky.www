@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Refrigerator } from "lucide-react";
 import {
   Dialog,
@@ -29,6 +29,7 @@ type LoginFormState = {
   password: string;
   remember: boolean;
   isLoading: boolean;
+  slowHint: boolean;
   error: string | null;
 };
 
@@ -37,15 +38,36 @@ const INITIAL_FORM_STATE: LoginFormState = {
   password: "",
   remember: false,
   isLoading: false,
+  slowHint: false,
   error: null,
 };
+
+const SLOW_HINT_DELAY_MS = 3_000;
 
 export function LoginDialog({ open, onOpenChange, initialEmail = "" }: LoginDialogProps) {
   const { login: authLogin } = useAuth();
   const openSignUp = useOpenSignUp();
   const [form, setForm] = useState<LoginFormState>(INITIAL_FORM_STATE);
+  const abortRef = useRef<AbortController | null>(null);
+  const slowHintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const resetForm = () => setForm(INITIAL_FORM_STATE);
+  const clearSlowHintTimer = () => {
+    if (slowHintTimerRef.current) {
+      clearTimeout(slowHintTimerRef.current);
+      slowHintTimerRef.current = null;
+    }
+  };
+
+  const abortLogin = () => {
+    abortRef.current?.abort();
+    abortRef.current = null;
+  };
+
+  const resetForm = () => {
+    clearSlowHintTimer();
+    abortLogin();
+    setForm(INITIAL_FORM_STATE);
+  };
 
   const patchForm = (patch: Partial<LoginFormState>) =>
     setForm((prev) => ({ ...prev, ...patch }));
@@ -66,15 +88,23 @@ export function LoginDialog({ open, onOpenChange, initialEmail = "" }: LoginDial
     const password = String(formProps.password ?? "");
     const remember = formProps.remember === "on";
 
-    patchForm({ email, password, remember, isLoading: true, error: null });
+    abortLogin();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    patchForm({ email, password, remember, isLoading: true, slowHint: false, error: null });
+    clearSlowHintTimer();
+    slowHintTimerRef.current = setTimeout(() => {
+      setForm((prev) => (prev.isLoading ? { ...prev, slowHint: true } : prev));
+    }, SLOW_HINT_DELAY_MS);
 
     try {
       if (password.length < 8) {
-        patchForm({ error: "비밀번호는 8자 이상이어야 합니다." });
+        patchForm({ error: "비밀번호는 8자 이상이어야 합니다.", isLoading: false });
         return;
       }
 
-      const result = await postLogin({ email, password, remember });
+      const result = await postLogin({ email, password, remember }, controller.signal);
 
       authLogin(
         {
@@ -87,12 +117,18 @@ export function LoginDialog({ open, onOpenChange, initialEmail = "" }: LoginDial
       logLoginSuccess(result.username, result.email);
       onOpenChange(false);
       resetForm();
-    } catch {
-      patchForm({
-        error: "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.",
-      });
+    } catch (e) {
+      const message =
+        e instanceof Error
+          ? e.message
+          : "로그인에 실패했습니다. 이메일과 비밀번호를 확인해 주세요.";
+      if (message !== "로그인이 취소되었습니다.") {
+        patchForm({ error: message });
+      }
     } finally {
-      setForm((prev) => ({ ...prev, isLoading: false }));
+      clearSlowHintTimer();
+      abortRef.current = null;
+      setForm((prev) => ({ ...prev, isLoading: false, slowHint: false }));
     }
   };
 
@@ -100,8 +136,8 @@ export function LoginDialog({ open, onOpenChange, initialEmail = "" }: LoginDial
     <Dialog
       open={open}
       onOpenChange={(next) => {
-        onOpenChange(next);
         if (!next) resetForm();
+        onOpenChange(next);
       }}
     >
       <DialogContent className="border-border bg-card sm:max-w-md">
@@ -177,6 +213,12 @@ export function LoginDialog({ open, onOpenChange, initialEmail = "" }: LoginDial
               로그인 상태 유지
             </Label>
           </div>
+
+          {form.slowHint && form.isLoading && !form.error && (
+            <p className="text-sm text-muted-foreground" role="status">
+              서버 응답이 느립니다. 잠시만 기다리거나 창을 닫아 취소할 수 있습니다.
+            </p>
+          )}
 
           {form.error && (
             <p className="text-sm text-destructive" role="alert">

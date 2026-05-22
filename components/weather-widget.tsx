@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Cloud,
   CloudFog,
@@ -14,8 +14,15 @@ import {
   Sun,
   type LucideIcon,
 } from "lucide-react";
-import { fetchWeather, type WeatherData } from "@/lib/weather-api";
+import {
+  fetchWeather,
+  readCachedWeather,
+  weatherFallback,
+  type WeatherData,
+} from "@/lib/weather-api";
 import { cn } from "@/lib/utils";
+
+const REFRESH_MS = 10 * 60 * 1000;
 
 function weatherIconForCode(icon: string): LucideIcon {
   const code = icon.slice(0, 2);
@@ -30,45 +37,48 @@ function weatherIconForCode(icon: string): LucideIcon {
 }
 
 type WeatherState = {
-  weather: WeatherData | null;
+  weather: WeatherData;
   loading: boolean;
-  error: boolean;
+  stale: boolean;
 };
 
-const INITIAL_WEATHER: WeatherState = {
-  weather: null,
-  loading: true,
-  error: false,
-};
+/** SSR·첫 클라이언트 렌더는 동일 HTML — localStorage는 mount 후에만 읽음 */
+function ssrSafeInitialState(): WeatherState {
+  return {
+    weather: weatherFallback(),
+    loading: true,
+    stale: false,
+  };
+}
 
 export function WeatherWidget() {
-  const [state, setState] = useState<WeatherState>(INITIAL_WEATHER);
+  const [state, setState] = useState<WeatherState>(ssrSafeInitialState);
 
-  const patchState = (patch: Partial<WeatherState>) =>
-    setState((prev) => ({ ...prev, ...patch }));
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      patchState({ loading: true, error: false });
-      try {
-        const data = await fetchWeather("Seoul", "KR");
-        if (!cancelled) patchState({ weather: data });
-      } catch {
-        if (!cancelled) patchState({ weather: null, error: true });
-      } finally {
-        if (!cancelled) patchState({ loading: false });
-      }
+  const load = useCallback(async () => {
+    setState((prev) => ({ ...prev, loading: true }));
+    try {
+      const data = await fetchWeather("Seoul", "KR");
+      setState({ weather: data, loading: false, stale: false });
+    } catch {
+      setState({
+        weather: weatherFallback(),
+        loading: false,
+        stale: true,
+      });
     }
-
-    void load();
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
-  const Icon = state.weather ? weatherIconForCode(state.weather.icon) : null;
+  useEffect(() => {
+    const cached = readCachedWeather();
+    if (cached) {
+      setState({ weather: cached, loading: false, stale: true });
+    }
+    void load();
+    const id = window.setInterval(() => void load(), REFRESH_MS);
+    return () => window.clearInterval(id);
+  }, [load]);
+
+  const Icon = weatherIconForCode(state.weather.icon);
 
   return (
     <aside
@@ -80,28 +90,21 @@ export function WeatherWidget() {
       aria-label="서울 날씨"
     >
       {state.loading && (
-        <>
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-accent" aria-hidden />
-          <span>날씨</span>
-        </>
+        <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-accent" aria-hidden />
       )}
-
-      {!state.loading && state.error && <span className="text-destructive/80">날씨 불가</span>}
-
-      {!state.loading && state.weather && Icon && (
-        <>
-          <span
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted/90 ring-1 ring-border/50"
-            aria-hidden
-          >
-            <Icon className="h-4 w-4 text-accent" strokeWidth={2} />
-          </span>
-          <span className="font-medium text-foreground tabular-nums">
-            {Math.round(state.weather.temp_c)}°
-          </span>
-          <span className="text-foreground/80">{state.weather.description}</span>
-          <span className="text-muted-foreground/80">· 서울</span>
-        </>
+      <span
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted/90 ring-1 ring-border/50"
+        aria-hidden
+      >
+        <Icon className="h-4 w-4 text-accent" strokeWidth={2} />
+      </span>
+      <span className="font-medium text-foreground tabular-nums">
+        {Math.round(state.weather.temp_c)}°
+      </span>
+      <span className="text-foreground/80">{state.weather.description}</span>
+      <span className="text-muted-foreground/80">· 서울</span>
+      {state.stale && !state.loading && (
+        <span className="sr-only">캐시 또는 기본 날씨 표시</span>
       )}
     </aside>
   );

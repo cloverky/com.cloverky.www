@@ -47,7 +47,8 @@ export function GeminiFloatingChat() {
       <div
         ref={floatingListRef}
         className={cn(
-          "flex max-h-[min(260px,38vh)] min-h-[140px] flex-col gap-3 overflow-y-auto px-4 py-3.5",
+          "flex max-h-[min(220px,32vh)] min-h-[120px] flex-col gap-3 overflow-y-auto px-4 py-3.5",
+        "sm:max-h-[min(260px,38vh)] sm:min-h-[140px]",
           "[scrollbar-color:oklch(0.28_0_0)_transparent] [scrollbar-width:thin]",
         )}
       >

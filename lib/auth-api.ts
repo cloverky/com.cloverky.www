@@ -104,7 +104,18 @@ export type LoginResponse = {
   email: string;
 };
 
-export async function postLogin(payload: LoginPayload): Promise<LoginResponse> {
+const LOGIN_TIMEOUT_MS = 15_000;
+
+export async function postLogin(
+  payload: LoginPayload,
+  signal?: AbortSignal,
+): Promise<LoginResponse> {
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => timeoutController.abort(), LOGIN_TIMEOUT_MS);
+
+  const onExternalAbort = () => timeoutController.abort();
+  signal?.addEventListener("abort", onExternalAbort);
+
   let res: Response;
   try {
     res = await fetch(`${API_BASE}/login`, {
@@ -115,11 +126,23 @@ export async function postLogin(payload: LoginPayload): Promise<LoginResponse> {
         password: payload.password,
         remember: payload.remember ?? false,
       }),
+      signal: timeoutController.signal,
     });
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.name === "AbortError") {
+      if (signal?.aborted) {
+        throw new Error("로그인이 취소되었습니다.");
+      }
+      throw new Error(
+        "로그인 응답이 너무 느립니다. 백엔드(uvicorn)가 실행 중인지 확인한 뒤 다시 시도해 주세요.",
+      );
+    }
     throw new Error(
       "백엔드 서버에 연결할 수 없습니다. uvicorn이 실행 중인지 확인해 주세요.",
     );
+  } finally {
+    clearTimeout(timeoutId);
+    signal?.removeEventListener("abort", onExternalAbort);
   }
 
   const data = (await res.json()) as LoginResponse & FastApiErrorBody;

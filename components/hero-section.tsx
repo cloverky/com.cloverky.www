@@ -9,7 +9,7 @@ import { CloverIcon } from "@/components/clover-icon";
 export function HeroSection() {
   const onSignUpClick = useOpenSignUp();
   return (
-    <section className="relative min-h-screen overflow-hidden pt-32 pb-20">
+    <section className="relative flex min-h-[100dvh] flex-col overflow-x-hidden pb-8 md:pb-20">
       {/* Background glow effect */}
       <div className="absolute top-0 right-0 h-[600px] w-[600px] -translate-y-1/4 translate-x-1/4 rounded-full bg-accent/20 blur-[120px]" />
       
@@ -26,14 +26,15 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-8">
+      <div className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 sm:px-6">
+        <div className="flex flex-1 flex-col justify-center pt-20 sm:pt-24 md:flex-none md:justify-start md:pt-[7.75rem] lg:pt-[8.75rem]">
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           <div className="flex flex-col justify-center">
             <p className="font-display mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-accent/15 bg-accent/[0.07] px-4 py-2 text-[0.95rem] text-brand-text shadow-sm">
               <CloverIcon className="h-4 w-4 text-accent" strokeWidth={2.5} />
               당신만의 냉장고 도우미
             </p>
-            <h1 className="font-display text-balance text-[2.85rem] leading-[1.18] tracking-normal text-foreground antialiased sm:text-[3.25rem] md:text-6xl lg:text-[4.75rem] lg:leading-[1.12]">
+            <h1 className="font-display text-balance text-[2rem] leading-[1.2] tracking-normal text-foreground antialiased sm:text-[3.25rem] md:text-6xl lg:text-[4.75rem] lg:leading-[1.12]">
               <span className="block text-foreground/55">
                 똑똑한 <span className="text-brand-text">AI</span>로
               </span>
@@ -49,7 +50,7 @@ export function HeroSection() {
               </span>
               <span className="mt-1 block text-brand-text">더 스마트하게.</span>
             </h1>
-            <p className="mt-7 max-w-lg text-base leading-[1.75] text-pretty text-muted-foreground md:text-lg">
+            <p className="mt-8 max-w-md break-keep text-[1.0625rem] leading-[1.95] text-foreground/80 sm:max-w-lg sm:text-lg sm:leading-[1.85] md:mt-7 md:text-muted-foreground">
               FridgeAI는 여러 AI가 함께 도와
               <br />
               냉장고 재고를 실시간으로 관리하고,
@@ -76,9 +77,9 @@ export function HeroSection() {
             </div>
           </div>
 
-          <div className="relative flex items-center justify-center">
-            {/* Agent visualization */}
-            <div className="relative h-[400px] w-[400px] lg:h-[500px] lg:w-[500px]">
+          <div className="relative hidden items-center justify-center lg:mt-5 lg:flex">
+            {/* Agent visualization — 데스크톱만 */}
+            <div className="relative h-[400px] w-full max-w-[400px] lg:h-[500px] lg:max-w-[500px]">
               {/* Central hub */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="flex h-24 w-24 items-center justify-center rounded-full border border-border bg-card shadow-lg">
@@ -129,6 +130,7 @@ export function HeroSection() {
               </svg>
             </div>
           </div>
+        </div>
         </div>
       </div>
 

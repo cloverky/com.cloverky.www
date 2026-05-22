@@ -36,6 +36,8 @@ type SignUpState = {
   usernameAvailable: boolean;
   usernameHint: string | null;
   error: string | null;
+  success: boolean;
+  successMessage: string | null;
 };
 
 const INITIAL_SIGNUP_STATE: SignUpState = {
@@ -51,6 +53,8 @@ const INITIAL_SIGNUP_STATE: SignUpState = {
   usernameAvailable: false,
   usernameHint: null,
   error: null,
+  success: false,
+  successMessage: null,
 };
 
 export function SignUpDialog({ open, onOpenChange, onOpenLogin }: SignUpDialogProps) {
@@ -146,9 +150,11 @@ export function SignUpDialog({ open, onOpenChange, onOpenLogin }: SignUpDialogPr
         agreeTerms,
       });
       logSignUpSuccess(result.username, result.email, result.message);
-      onOpenChange(false);
-      resetForm();
-      onOpenLogin?.(email);
+      patchForm({
+        success: true,
+        successMessage: result.message,
+        isLoading: false,
+      });
     } catch (e) {
       patchForm({
         error: e instanceof Error ? e.message : "회원가입에 실패했습니다.",
@@ -158,9 +164,51 @@ export function SignUpDialog({ open, onOpenChange, onOpenLogin }: SignUpDialogPr
     }
   };
 
+  const handleDialogOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) resetForm();
+    onOpenChange(nextOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="border-border bg-card sm:max-w-md">
+        {form.success ? (
+          <div className="py-2 text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+              <Refrigerator className="h-6 w-6 text-accent" />
+            </div>
+            <DialogTitle className="text-xl text-foreground">가입 완료</DialogTitle>
+            <DialogDescription className="mt-2 text-muted-foreground">
+              {form.successMessage ?? "회원가입이 완료되었습니다."}
+            </DialogDescription>
+            <p className="mt-3 text-sm text-muted-foreground">
+              아래 버튼으로 로그인한 뒤 서비스를 이용해 주세요.
+            </p>
+            <div className="mt-6 flex flex-col gap-2">
+              <Button
+                type="button"
+                className="w-full bg-foreground text-background hover:bg-foreground/90"
+                onClick={() => {
+                  const email = form.email.trim();
+                  resetForm();
+                  onOpenChange(false);
+                  onOpenLogin?.(email || undefined);
+                }}
+              >
+                로그인하기
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-border"
+                onClick={() => handleDialogOpenChange(false)}
+              >
+                닫기
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
         <DialogHeader className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
             <Refrigerator className="h-6 w-6 text-accent" />
@@ -336,6 +384,8 @@ export function SignUpDialog({ open, onOpenChange, onOpenLogin }: SignUpDialogPr
             </button>
           </p>
         </form>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
