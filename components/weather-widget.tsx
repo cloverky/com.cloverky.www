@@ -43,6 +43,7 @@ type WeatherState = {
 };
 
 /** SSR·첫 클라이언트 렌더는 동일 HTML — localStorage는 mount 후에만 읽음 */
+// 테스트를 위해 임시로 사용
 function ssrSafeInitialState(): WeatherState {
   return {
     weather: weatherFallback(),
