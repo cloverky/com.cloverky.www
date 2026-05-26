@@ -265,7 +265,7 @@ export function SignUpDialog({ open, onOpenChange, onOpenLogin }: SignUpDialogPr
                 disabled={form.isCheckingUsername || !form.username.trim()}
                 onClick={() => void handleCheckUsername()}
               >
-                {form.isCheckingUsername ? "확인 중…" : "중복 확인"}
+                {form.isCheckingUsername ? "확인 중…" : "중복인가 "}
               </Button>
             </div>
             {form.usernameHint && (
