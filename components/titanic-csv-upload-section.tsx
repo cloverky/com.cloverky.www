@@ -14,6 +14,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const EXPECTED_FILENAME = "titanic.csv";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000").replace(
+  /\/$/,
+  "",
+);
 
 type UploadOk = {
   kind: "ok";
@@ -21,6 +25,7 @@ type UploadOk = {
   size: number;
   lineCount: number;
   nameMatches: boolean;
+  uploadedCount: number;
 };
 
 type UploadErr = { kind: "error"; message: string };
@@ -46,6 +51,7 @@ function readCsvFile(file: File): Promise<UploadOk | UploadErr> {
       size: file.size,
       lineCount: lines,
       nameMatches,
+      uploadedCount: 0,
     };
   });
 }
@@ -68,11 +74,14 @@ type TitanicCsvUploadSectionProps = {
    * true면 드래그 앤 드롭 전용 영역(업로드 창)과 별도 "업로드" 버튼만 노출합니다.
    */
   splitDropAndButton?: boolean;
+  /** 업로드 성공 시 호출됩니다. */
+  onUploadSuccess?: () => void;
 };
 
 export function TitanicCsvUploadSection({
   bypassLocalGuard = false,
   splitDropAndButton = false,
+  onUploadSuccess,
 }: TitanicCsvUploadSectionProps) {
   const pathname = usePathname();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +94,7 @@ export function TitanicCsvUploadSection({
   };
 
   const [ui, setUi] = useState<UploadUiState>({
-    localRootOk: false,
+    localRootOk: bypassLocalGuard,
     dragOver: false,
     status: null,
     busy: false,
@@ -95,10 +104,7 @@ export function TitanicCsvUploadSection({
     setUi((prev) => ({ ...prev, ...patch }));
 
   useEffect(() => {
-    if (bypassLocalGuard) {
-      patchUi({ localRootOk: true });
-      return;
-    }
+    if (bypassLocalGuard) return;
     patchUi({
       localRootOk: pathname === "/" && isLocalDevHost(window.location.hostname),
     });
@@ -109,7 +115,47 @@ export function TitanicCsvUploadSection({
     patchUi({ busy: true, status: null });
     try {
       const result = await readCsvFile(file);
-      patchUi({ status: result });
+      if (result.kind === "error") {
+        patchUi({ status: result });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch(`${API_BASE}/titanic/james/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        let message = "업로드 요청에 실패했습니다.";
+        try {
+          const body = (await res.json()) as { detail?: string };
+          if (body?.detail) message = body.detail;
+        } catch {
+          // 응답이 JSON이 아니면 기본 메시지 사용
+        }
+        patchUi({ status: { kind: "error", message } });
+        return;
+      }
+
+      const body = (await res.json()) as { count?: number };
+      patchUi({
+        status: {
+          ...result,
+          uploadedCount: typeof body.count === "number" ? body.count : 0,
+        },
+      });
+      onUploadSuccess?.();
+    } catch {
+      patchUi({
+        status: {
+          kind: "error",
+          message:
+            "서버에 연결하지 못했습니다. 백엔드 실행 상태와 Neon DB 연결을 확인해 주세요.",
+        },
+      });
     } finally {
       patchUi({ busy: false });
     }
@@ -211,6 +257,8 @@ export function TitanicCsvUploadSection({
               파일 이름: {ui.status.name}
               <br />
               크기: {(ui.status.size / 1024).toFixed(1)} KB · 줄 수: {ui.status.lineCount}
+              <br />
+              서버 수신 행 수: {ui.status.uploadedCount}
             </p>
             {!ui.status.nameMatches && (
               <p className="mt-3 text-sm leading-relaxed text-amber-800">
@@ -334,7 +382,8 @@ export function TitanicCsvUploadSection({
             <p className="font-medium">업로드 처리 완료</p>
             <p className="mt-1 text-muted-foreground">
               파일명: {ui.status.name} · 크기: {(ui.status.size / 1024).toFixed(1)}{" "}
-              KB · 줄 수: {ui.status.lineCount}
+              KB · 줄 수: {ui.status.lineCount} · 서버 수신 행 수:{" "}
+              {ui.status.uploadedCount}
             </p>
             {!ui.status.nameMatches && (
               <p className="mt-2 text-amber-600 dark:text-amber-500">
