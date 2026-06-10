@@ -31,26 +31,38 @@ type PassengerResponse = {
   };
 };
 
-export function TitanicPassengerList() {
+export function TitanicPassengerList({ fetchEnabled = false }: { fetchEnabled?: boolean }) {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PassengerResponse | null>(null);
 
   useEffect(() => {
+    if (!fetchEnabled) return;
+
     let mounted = true;
     const fetchPassengers = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`${API_BASE}/titanic/walter/passengers?page=${page}&size=${PAGE_SIZE}`, {
+        const res = await fetch(`${API_BASE}/titanic/walter/myself`, {
           cache: "no-store",
         });
         if (!res.ok) {
           throw new Error("승객 목록 조회에 실패했습니다.");
         }
-        const body = (await res.json()) as PassengerResponse;
-        if (mounted) setData(body);
+        await res.json().catch(() => null);
+        if (mounted) {
+          setData({
+            items: [],
+            pagination: {
+              page,
+              size: PAGE_SIZE,
+              totalCount: 0,
+              totalPages: 1,
+            },
+          });
+        }
       } catch (e) {
         if (mounted) setError(e instanceof Error ? e.message : "오류가 발생했습니다.");
       } finally {
@@ -61,7 +73,7 @@ export function TitanicPassengerList() {
     return () => {
       mounted = false;
     };
-  }, [page]);
+  }, [fetchEnabled, page]);
 
   const totalPages = data?.pagination.totalPages ?? 1;
 

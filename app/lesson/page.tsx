@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LessonMobileNav } from "@/components/lesson-mobile-nav";
 import { TitanicPassengerList } from "@/components/titanic-passenger-list";
 import { TitanicCsvUploadSection } from "@/components/titanic-csv-upload-section";
+import { SmithCaptainChat } from "@/components/smith-captain-chat";
 import {
   Collapsible,
   CollapsibleContent,
@@ -34,10 +35,30 @@ const stats = [
 
 export default function LessonPage() {
   const [hasUploadedCsv, setHasUploadedCsv] = useState(false);
+  const [passengerListRequested, setPassengerListRequested] = useState(false);
+  const [showCaptainChat, setShowCaptainChat] = useState(false);
+  const captainChatRef = useRef<HTMLElement>(null);
+
+  const openPassengerList = useCallback(() => {
+    setPassengerListRequested(true);
+  }, []);
+
+  const openCaptainChat = useCallback(() => {
+    setShowCaptainChat(true);
+    setTimeout(() => {
+      captainChatRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  }, []);
+
+  useEffect(() => {
+    if (window.location.hash === "#data-analysis") {
+      setPassengerListRequested(true);
+    }
+  }, []);
 
   return (
     <main className="min-h-screen bg-background pt-20 text-foreground sm:pt-24">
-      <LessonMobileNav />
+      <LessonMobileNav onPassengerListClick={openPassengerList} />
 
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-10 lg:grid-cols-[14rem_minmax(0,1fr)_16rem] lg:py-14">
         <aside className="hidden border-r border-border/70 pr-6 text-sm lg:block">
@@ -57,13 +78,25 @@ export default function LessonPage() {
                     </a>
                   </li>
                   <li>
-                    <a className="transition-colors hover:text-accent" href="#data-analysis">
+                    <a
+                      className="transition-colors hover:text-accent"
+                      href="#data-analysis"
+                      onClick={openPassengerList}
+                    >
                       2. 승객 목록
                     </a>
                   </li>
                   <li>
+                    <a
+                      className="cursor-pointer transition-colors hover:text-accent"
+                      onClick={openCaptainChat}
+                    >
+                      3. 스미스 선장과 대화
+                    </a>
+                  </li>
+                  <li>
                     <a className="transition-colors hover:text-accent" href="#model-prediction">
-                      3. 모델 예측
+                      4. 모델 예측
                     </a>
                   </li>
                 </ul>
@@ -132,14 +165,30 @@ export default function LessonPage() {
                 업로드한 타이타닉 데이터를 바탕으로 성별, 연령, 객실 등급, 탑승 요금
                 등이 생존 여부와 어떤 관계가 있는지 살펴봅니다.
               </p>
-              {hasUploadedCsv ? (
-                <TitanicPassengerList />
-              ) : (
+              {!hasUploadedCsv && (
                 <p className="mt-4 text-sm text-muted-foreground">
-                  먼저 1. 데이터 수집에서 CSV를 업로드하면 승객 명단이 표시됩니다.
+                  먼저 1. 데이터 수집에서 CSV를 업로드해 주세요.
                 </p>
               )}
+              <TitanicPassengerList fetchEnabled={passengerListRequested} />
             </section>
+
+            {showCaptainChat && (
+              <section
+                id="captain-chat"
+                ref={captainChatRef}
+                className="scroll-mt-28 rounded-2xl border border-border bg-card/50 p-5 shadow-sm"
+              >
+                <div className="mb-4 flex items-center gap-2">
+                  <Ship className="h-5 w-5 text-accent" />
+                  <h2 className="text-lg font-bold">스미스 선장과 대화</h2>
+                </div>
+                <p className="mb-5 text-sm leading-7 text-muted-foreground">
+                  타이타닉의 에드워드 스미스 선장에게 1912년 항해에 대해 직접 물어보세요.
+                </p>
+                <SmithCaptainChat />
+              </section>
+            )}
 
             <section
               id="model-prediction"

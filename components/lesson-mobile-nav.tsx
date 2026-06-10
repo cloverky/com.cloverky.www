@@ -17,7 +17,11 @@ import {
 import { ChevronDown, Menu } from "lucide-react";
 
 /** Radix Sheet는 SSR/CSR id가 달라 hydration 오류가 날 수 있어 마운트 후에만 렌더합니다. */
-export function LessonMobileNav() {
+export function LessonMobileNav({
+  onPassengerListClick,
+}: {
+  onPassengerListClick?: () => void;
+}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -63,7 +67,11 @@ export function LessonMobileNav() {
                   </li>
                   <li>
                     <SheetClose asChild>
-                      <a className="transition-colors hover:text-accent" href="#data-analysis">
+                      <a
+                        className="transition-colors hover:text-accent"
+                        href="#data-analysis"
+                        onClick={onPassengerListClick}
+                      >
                         2. 승객 목록
                       </a>
                     </SheetClose>
