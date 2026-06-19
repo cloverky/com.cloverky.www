@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { Loader2, SendHorizontal, Ship } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { postBackendChat } from "@/lib/chat-api";
+import { postSmithChat } from "@/lib/chat-api";
 import { cn } from "@/lib/utils";
 
 type Message = { id: number; role: "user" | "assistant"; content: string };
@@ -41,8 +41,10 @@ export function SmithCaptainChat() {
     scrollDown();
 
     try {
-      const reply = await postBackendChat(SMITH_PREFIX + text);
-      setMessages((prev) => [...prev, { id: nextId(), role: "assistant", content: reply }]);
+      const reply = await postSmithChat(SMITH_PREFIX + text);
+      if (reply) {
+        setMessages((prev) => [...prev, { id: nextId(), role: "assistant", content: reply }]);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "요청에 실패했습니다.");
     } finally {

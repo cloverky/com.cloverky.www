@@ -141,6 +141,11 @@ export function HeaderMobileNav({
               lesson
             </Link>
           </Button>
+          <Button variant="outline" className="h-10 w-full" asChild>
+            <Link href="/admin" onClick={close}>
+              admin
+            </Link>
+          </Button>
           {user ? (
             <>
               <p className="px-1 text-xs text-muted-foreground">

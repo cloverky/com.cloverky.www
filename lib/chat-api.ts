@@ -15,7 +15,12 @@ function parseApiError(data: FastApiErrorBody, status: number): string {
 
 /** 백엔드 POST /chat — 본문: { "message": "..." }, 응답: { "reply": "..." } */
 export async function postBackendChat(message: string): Promise<string> {
-  const res = await fetch(`${API_BASE}/chat`, {
+  return postSmithChat(message);
+}
+
+/** 백엔드 POST /smith/chat — 본문: { "message": "..." }, 응답: { "reply": "..." } */
+export async function postSmithChat(message: string): Promise<string> {
+  const res = await fetch(`${API_BASE}/api/titanic/smith/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message }),
@@ -27,10 +32,5 @@ export async function postBackendChat(message: string): Promise<string> {
     throw new Error(parseApiError(data, res.status));
   }
 
-  const reply = data.reply?.trim();
-  if (!reply) {
-    throw new Error("응답이 비어 있습니다.");
-  }
-
-  return reply;
+  return data.reply?.trim() ?? "";
 }
