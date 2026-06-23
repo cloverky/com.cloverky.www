@@ -34,7 +34,7 @@ export function HeroSection() {
               <CloverIcon className="h-4 w-4 text-accent" strokeWidth={2.5} />
               당신만의 냉장고 도우미
             </p>
-            <h1 className="font-display text-balance text-[2rem] leading-[1.2] tracking-normal text-foreground antialiased sm:text-[3.25rem] md:text-6xl lg:text-[4.75rem] lg:leading-[1.12]">
+            <h1 className="font-display text-balance text-[3.75rem] leading-[1.15] tracking-normal text-foreground antialiased sm:text-[3.25rem] md:text-6xl lg:text-[4.75rem] lg:leading-[1.12]">
               <span className="block text-foreground/55">
                 똑똑한 <span className="text-brand-text">AI</span>로
               </span>
@@ -50,7 +50,7 @@ export function HeroSection() {
               </span>
               <span className="mt-1 block text-brand-text">더 스마트하게.</span>
             </h1>
-            <p className="mt-8 max-w-md break-keep text-[1.0625rem] leading-[1.95] text-foreground/80 sm:max-w-lg sm:text-lg sm:leading-[1.85] md:mt-7 md:text-muted-foreground">
+            <p className="mt-8 max-w-md break-keep text-[0.875rem] leading-[1.95] text-foreground/80 sm:max-w-lg sm:text-lg sm:leading-[1.85] md:mt-7 md:text-muted-foreground">
               FridgeAI는 여러 AI가 함께 도와
               <br />
               냉장고 재고를 실시간으로 관리하고,
