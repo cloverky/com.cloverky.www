@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Jua, Noto_Sans_KR } from 'next/font/google'
+import { Noto_Sans_KR } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AppShell } from '@/components/app-shell'
 import { Providers } from '@/components/providers'
@@ -13,13 +13,6 @@ const notoSansKr = Noto_Sans_KR({
   variable: '--font-noto-sans-kr',
 })
 
-/** 히어로 등 강조 — 동글동글 두꺼운 느낌 */
-const jua = Jua({
-  subsets: ['latin'],
-  weight: '400',
-  display: 'swap',
-  variable: '--font-jua',
-})
 
 export const metadata: Metadata = {
   title: 'FridgeAI - AI 냉장고 관리·맞춤 레시피',
@@ -52,7 +45,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${notoSansKr.variable} ${jua.variable} font-sans antialiased bg-background`}
+        className={`${notoSansKr.variable} font-sans antialiased bg-background`}
       >
         <Providers>
           <AppShell>{children}</AppShell>
