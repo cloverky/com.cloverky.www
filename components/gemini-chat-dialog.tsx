@@ -17,7 +17,7 @@ import {
   scrollChatLists,
   useGeminiChat,
 } from "@/components/gemini-chat-context";
-import { postBackendChat } from "@/lib/chat-api";
+import { postGeminiChat } from "@/lib/chat-api";
 import { cn } from "@/lib/utils";
 
 type GeminiChatDialogProps = {
@@ -56,7 +56,9 @@ export function useGeminiSend() {
     scrollChatLists(dialogListRef, floatingListRef);
 
     try {
-      const reply = await postBackendChat(text);
+      const reply = await postGeminiChat(
+        next.map((m) => ({ role: m.role, content: m.content })),
+      );
       const withAssistant: ChatMessage[] = [
         ...next,
         { id: nextChatId(), role: "assistant", content: reply },
@@ -67,11 +69,10 @@ export function useGeminiSend() {
       let msg = "요청에 실패했습니다. 잠시 후 다시 시도해 주세요.";
       if (e instanceof Error) {
         if (/failed to fetch|networkerror|load failed/i.test(e.message)) {
-          msg =
-            "백엔드에 연결할 수 없습니다.\nuvicorn이 http://127.0.0.1:8000 에서 실행 중인지 확인해 주세요.";
+          msg = "서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.";
         } else if (/404.*gemini|not found for API/i.test(e.message)) {
           msg =
-            "Gemini 모델을 찾을 수 없습니다.\nbackend/.env 에 GEMINI_MODEL=gemini-2.5-flash 를 설정한 뒤 서버를 재시작해 주세요.";
+            "Gemini 모델을 찾을 수 없습니다.\n.env.local 에 GEMINI_MODEL=gemini-2.5-flash 를 설정한 뒤 서버를 재시작해 주세요.";
         } else if (/429|quota|rate.?limit/i.test(e.message)) {
           msg =
             "Gemini API 사용 한도에 도달했습니다.\nGoogle AI Studio에서 할당량·결제를 확인하거나, 잠시 후 다시 시도해 주세요.";

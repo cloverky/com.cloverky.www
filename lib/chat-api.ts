@@ -13,6 +13,25 @@ function parseApiError(data: FastApiErrorBody, status: number): string {
   return `요청 실패 (${status})`;
 }
 
+type GeminiMessage = { role: "user" | "assistant"; content: string };
+
+/** Next.js Route Handler POST /api/gemini/chat — 대화 히스토리 전체 전달 */
+export async function postGeminiChat(messages: GeminiMessage[]): Promise<string> {
+  const res = await fetch("/api/gemini/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ messages }),
+  });
+
+  const data = (await res.json()) as { reply?: string; error?: string } & FastApiErrorBody;
+
+  if (!res.ok) {
+    throw new Error(data.error ?? parseApiError(data, res.status));
+  }
+
+  return data.reply?.trim() ?? "";
+}
+
 /** 백엔드 POST /chat — 본문: { "message": "..." }, 응답: { "reply": "..." } */
 export async function postBackendChat(message: string): Promise<string> {
   return postSmithChat(message);
