@@ -7,7 +7,7 @@ import './globals.css'
 
 /** 본문 — 깔끔한 고딕 */
 const notoSansKr = Noto_Sans_KR({
-  subsets: ['latin'],
+  subsets: ['latin', 'korean'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-noto-sans-kr',
