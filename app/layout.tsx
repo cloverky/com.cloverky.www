@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Noto_Sans_KR } from 'next/font/google'
+import { Noto_Sans_KR, Jua } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { AppShell } from '@/components/app-shell'
 import { Providers } from '@/components/providers'
@@ -11,6 +11,14 @@ const notoSansKr = Noto_Sans_KR({
   weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-noto-sans-kr',
+})
+
+/** 디스플레이 — 굵고 둥근 한국어 제목용 */
+const jua = Jua({
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
+  variable: '--font-jua',
 })
 
 
@@ -45,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
-        className={`${notoSansKr.variable} font-sans antialiased bg-background`}
+        className={`${notoSansKr.variable} ${jua.variable} font-sans antialiased bg-background`}
       >
         <Providers>
           <AppShell>{children}</AppShell>
