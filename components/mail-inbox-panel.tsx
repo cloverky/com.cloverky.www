@@ -11,6 +11,10 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
+function formatBody(text: string) {
+  return text.replace(/([.!?])\s+/g, "$1\n");
+}
+
 function formatTime(iso: string) {
   const d = new Date(iso);
   return d.toLocaleString("ko-KR", {
@@ -69,7 +73,7 @@ function MailItem({
         </div>
         {expanded && item.body && (
           <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground border-t border-border/40 pt-2">
-            {item.body}
+            {formatBody(item.body)}
           </p>
         )}
       </button>
