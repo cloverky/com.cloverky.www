@@ -29,6 +29,11 @@ export function saveNotification(text: string): AppNotification {
   return item;
 }
 
+export function deleteNotification(id: string): void {
+  const list = loadNotifications().filter((n) => n.id !== id);
+  localStorage.setItem(KEY, JSON.stringify(list));
+}
+
 export function clearNotifications(): void {
   localStorage.removeItem(KEY);
   localStorage.removeItem(READ_AT_KEY);

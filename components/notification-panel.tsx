@@ -5,6 +5,7 @@ import { Bell, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   clearNotifications,
+  deleteNotification,
   loadNotifications,
   markAllRead,
   type AppNotification,
@@ -40,6 +41,13 @@ export function NotificationPanel({ open, onOpenChange, onCountChange }: Props) 
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  function handleDelete(id: string) {
+    deleteNotification(id);
+    const next = items.filter((n) => n.id !== id);
+    setItems(next);
+    onCountChange?.(next.length);
+  }
 
   function handleClear() {
     clearNotifications();
@@ -97,7 +105,15 @@ export function NotificationPanel({ open, onOpenChange, onCountChange }: Props) 
           <p className="py-8 text-center text-sm text-muted-foreground">알림이 없어요</p>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="flex justify-end">
+            <div key={item.id} className="group flex items-end justify-end gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleDelete(item.id)}
+                className="mb-4 flex h-5 w-5 shrink-0 items-center justify-center rounded opacity-0 group-hover:opacity-100 text-muted-foreground transition hover:text-destructive"
+                aria-label="삭제"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
               <div className="max-w-[85%]">
                 <div
                   className={cn(
