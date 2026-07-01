@@ -36,3 +36,11 @@ export async function fetchInbox(limit = 50): Promise<InboxItem[]> {
   const data = (await res.json()) as { items: InboxItem[] };
   return data.items ?? [];
 }
+
+export async function deleteInboxItem(id: number): Promise<void> {
+  await fetch(`${API_BASE}/messenger/mail/inbox/${id}`, { method: "DELETE" });
+}
+
+export async function deleteAllInbox(): Promise<void> {
+  await fetch(`${API_BASE}/messenger/mail/inbox`, { method: "DELETE" });
+}

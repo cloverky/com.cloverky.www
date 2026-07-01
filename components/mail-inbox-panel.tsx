@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Inbox, RefreshCw, X } from "lucide-react";
+import { Inbox, RefreshCw, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fetchInbox, type InboxItem } from "@/lib/mail-api";
+import { deleteAllInbox, deleteInboxItem, fetchInbox, type InboxItem } from "@/lib/mail-api";
 
 type Props = {
   open: boolean;
@@ -20,35 +20,59 @@ function formatTime(iso: string) {
   });
 }
 
-function MailItem({ item }: { item: InboxItem }) {
+function MailItem({
+  item,
+  onDelete,
+}: {
+  item: InboxItem;
+  onDelete: (id: number) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <button
-      type="button"
-      onClick={() => setExpanded((v) => !v)}
+    <div
       className={cn(
-        "w-full text-left rounded-xl border border-border/50 bg-card/60 px-4 py-3",
+        "group rounded-xl border border-border/50 bg-card/60 px-4 py-3",
         "transition hover:border-accent/30 hover:bg-accent/5",
-        "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/40",
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-xs font-medium text-accent">{item.from_email}</p>
-          <p className="mt-0.5 truncate text-sm font-medium text-foreground">
-            {item.subject ?? "(제목 없음)"}
-          </p>
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        className="w-full text-left focus-visible:outline-none"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-medium text-accent">{item.from_email}</p>
+            <p className="mt-0.5 truncate text-sm font-medium text-foreground">
+              {item.subject ?? "(제목 없음)"}
+            </p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-[10px] text-muted-foreground">{formatTime(item.received_at)}</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(item.id);
+              }}
+              className={cn(
+                "ml-1 flex h-5 w-5 items-center justify-center rounded",
+                "text-muted-foreground opacity-0 group-hover:opacity-100",
+                "transition hover:text-destructive",
+              )}
+              aria-label="삭제"
+            >
+              <Trash2 className="h-3 w-3" />
+            </button>
+          </div>
         </div>
-        <span className="shrink-0 text-[10px] text-muted-foreground">
-          {formatTime(item.received_at)}
-        </span>
-      </div>
-      {expanded && item.body && (
-        <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground border-t border-border/40 pt-2">
-          {item.body}
-        </p>
-      )}
-    </button>
+        {expanded && item.body && (
+          <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground border-t border-border/40 pt-2">
+            {item.body}
+          </p>
+        )}
+      </button>
+    </div>
   );
 }
 
@@ -62,6 +86,16 @@ export function MailInboxPanel({ open, onOpenChange }: Props) {
     const data = await fetchInbox();
     setItems(data);
     setLoading(false);
+  }
+
+  async function handleDelete(id: number) {
+    await deleteInboxItem(id);
+    setItems((prev) => prev.filter((it) => it.id !== id));
+  }
+
+  async function handleDeleteAll() {
+    await deleteAllInbox();
+    setItems([]);
   }
 
   useEffect(() => {
@@ -105,6 +139,17 @@ export function MailInboxPanel({ open, onOpenChange }: Props) {
           )}
         </div>
         <div className="flex items-center gap-1">
+          {items.length > 0 && (
+            <button
+              type="button"
+              onClick={handleDeleteAll}
+              className="flex h-7 items-center gap-1 rounded-lg px-2 text-xs text-muted-foreground transition hover:text-destructive"
+              aria-label="전체 삭제"
+            >
+              <Trash2 className="h-3 w-3" />
+              전체삭제
+            </button>
+          )}
           <button
             type="button"
             onClick={load}
@@ -132,7 +177,9 @@ export function MailInboxPanel({ open, onOpenChange }: Props) {
         ) : items.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">수신된 메일이 없습니다.</p>
         ) : (
-          items.map((item) => <MailItem key={item.id} item={item} />)
+          items.map((item) => (
+            <MailItem key={item.id} item={item} onDelete={handleDelete} />
+          ))
         )}
       </div>
     </div>
