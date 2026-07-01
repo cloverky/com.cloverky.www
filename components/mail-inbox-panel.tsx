@@ -11,8 +11,8 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-function formatBody(text: string) {
-  return text.replace(/([.!?])\s+/g, "$1\n");
+function splitSentences(text: string): string[] {
+  return text.split(/(?<=[.!?])\s+/).filter(Boolean);
 }
 
 function formatTime(iso: string) {
@@ -72,9 +72,11 @@ function MailItem({
           </div>
         </div>
         {expanded && item.body && (
-          <p className="mt-2 whitespace-pre-wrap break-keep text-[13px] leading-relaxed text-muted-foreground border-t border-border/40 pt-2">
-            {formatBody(item.body)}
-          </p>
+          <div className="mt-2 break-keep text-[13px] leading-relaxed text-muted-foreground border-t border-border/40 pt-2 space-y-1.5">
+            {splitSentences(item.body).map((s, i) => (
+              <p key={i}>{s}</p>
+            ))}
+          </div>
         )}
       </button>
     </div>
