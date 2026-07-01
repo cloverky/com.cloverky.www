@@ -72,7 +72,7 @@ function MailItem({
           </div>
         </div>
         {expanded && item.body && (
-          <p className="mt-2 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground border-t border-border/40 pt-2">
+          <p className="mt-2 whitespace-pre-wrap break-keep text-[13px] leading-relaxed text-muted-foreground border-t border-border/40 pt-2">
             {formatBody(item.body)}
           </p>
         )}
@@ -140,7 +140,7 @@ export function MailInboxPanel({ open, onOpenChange }: Props) {
       className={cn(
         "fixed z-50 flex flex-col",
         "bottom-20 right-4 sm:right-6",
-        "w-[min(360px,calc(100vw-2rem))]",
+        "w-[min(400px,calc(100vw-2rem))]",
         "max-h-[70vh]",
         "rounded-2xl border border-border/70 bg-card shadow-2xl",
         "ring-1 ring-white/[0.05]",
