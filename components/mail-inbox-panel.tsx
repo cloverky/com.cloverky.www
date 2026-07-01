@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Inbox, RefreshCw, Trash2, X } from "lucide-react";
+import { Bell, BellOff, Inbox, RefreshCw, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { deleteAllInbox, deleteInboxItem, fetchInbox, type InboxItem } from "@/lib/mail-api";
+import { getPushState, subscribePush, unsubscribePush } from "@/lib/push-api";
 
 type Props = {
   open: boolean;
@@ -79,6 +80,7 @@ function MailItem({
 export function MailInboxPanel({ open, onOpenChange }: Props) {
   const [items, setItems] = useState<InboxItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [pushState, setPushState] = useState<"granted" | "denied" | "default">("default");
   const panelRef = useRef<HTMLDivElement>(null);
 
   async function load() {
@@ -99,8 +101,21 @@ export function MailInboxPanel({ open, onOpenChange }: Props) {
   }
 
   useEffect(() => {
-    if (open) load();
+    if (open) {
+      load();
+      getPushState().then(setPushState);
+    }
   }, [open]);
+
+  async function handleTogglePush() {
+    if (pushState === "granted") {
+      await unsubscribePush();
+      setPushState("default");
+    } else {
+      const ok = await subscribePush();
+      setPushState(ok ? "granted" : "denied");
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -139,6 +154,26 @@ export function MailInboxPanel({ open, onOpenChange }: Props) {
           )}
         </div>
         <div className="flex items-center gap-1">
+          {pushState !== "denied" && (
+            <button
+              type="button"
+              onClick={handleTogglePush}
+              title={pushState === "granted" ? "알림 끄기" : "새 메일 알림 받기"}
+              className={cn(
+                "flex h-7 w-7 items-center justify-center rounded-lg transition",
+                pushState === "granted"
+                  ? "text-accent hover:text-muted-foreground"
+                  : "text-muted-foreground hover:text-accent",
+              )}
+              aria-label="알림 설정"
+            >
+              {pushState === "granted" ? (
+                <Bell className="h-3.5 w-3.5" />
+              ) : (
+                <BellOff className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
           {items.length > 0 && (
             <button
               type="button"
