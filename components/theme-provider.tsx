@@ -21,7 +21,7 @@ const ThemeContext = React.createContext<ThemeContextValue | null>(null)
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'dark',
+  defaultTheme = 'light',
   storageKey = 'theme',
 }: ThemeProviderProps) {
   const [resolvedTheme, setResolvedTheme] = React.useState<Theme>(defaultTheme)

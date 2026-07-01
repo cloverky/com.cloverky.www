@@ -1,11 +1,16 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+::selection {
+  background: transparent;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
   /* FridgeAI brand — fresh green (oklch hue ~155) */
   --brand-hue: 155;
+  --radius: 0.625rem;
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.13 0 0);
   --card: oklch(1 0 0);
@@ -20,7 +25,6 @@
   --muted-foreground: oklch(0.45 0 0);
   --accent: oklch(0.52 0.14 var(--brand-hue));
   --accent-foreground: oklch(0.99 0 0);
-  /* 히어로·강조용 부드러운 브랜드 초록 */
   --brand-text: oklch(0.42 0.1 var(--brand-hue));
   --brand-text-soft: oklch(0.55 0.07 var(--brand-hue));
   --destructive: oklch(0.577 0.245 27.325);
@@ -33,7 +37,6 @@
   --chart-3: oklch(0.48 0.1 140);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
   --sidebar: oklch(0.99 0 0);
   --sidebar-foreground: oklch(0.13 0 0);
   --sidebar-primary: oklch(0.52 0.14 var(--brand-hue));

@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Mail } from "lucide-react";
+import { Bell, Inbox, Mail } from "lucide-react";
 import { WeatherWidget } from "@/components/weather-widget";
 import { GeminiChatDialog } from "@/components/gemini-chat-dialog";
 import { MailComposeDialog } from "@/components/mail-compose-dialog";
+import { MailInboxPanel } from "@/components/mail-inbox-panel";
 import { NotificationPanel } from "@/components/notification-panel";
 import { CloverIcon } from "@/components/clover-icon";
 import { getUnreadCount } from "@/lib/notification-store";
@@ -17,6 +18,7 @@ type BottomRightStackProps = {
 export function BottomRightStack({ className }: BottomRightStackProps) {
   const [geminiOpen, setGeminiOpen] = useState(false);
   const [mailOpen, setMailOpen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
 
@@ -59,7 +61,23 @@ export function BottomRightStack({ className }: BottomRightStackProps) {
           )}
         </button>
 
-        {/* 이메일 */}
+        {/* 수신함 */}
+        <button
+          type="button"
+          onClick={() => setInboxOpen((v) => !v)}
+          className={cn(
+            "flex h-10 w-10 items-center justify-center rounded-full",
+            "border border-border bg-card text-accent shadow-sm",
+            "ring-1 ring-inset ring-white/[0.04]",
+            "transition hover:border-accent/35 hover:bg-accent/10",
+            "focus-visible:ring-2 focus-visible:ring-accent/35 focus-visible:outline-none",
+          )}
+          aria-label="수신함"
+        >
+          <Inbox className="h-5 w-5" strokeWidth={1.85} />
+        </button>
+
+        {/* 이메일 작성 */}
         <button
           type="button"
           onClick={() => setMailOpen(true)}
@@ -99,6 +117,7 @@ export function BottomRightStack({ className }: BottomRightStackProps) {
         onOpenChange={setNotifOpen}
         onCountChange={setNotifCount}
       />
+      <MailInboxPanel open={inboxOpen} onOpenChange={setInboxOpen} />
       <MailComposeDialog open={mailOpen} onOpenChange={setMailOpen} />
       <GeminiChatDialog open={geminiOpen} onOpenChange={setGeminiOpen} />
     </>

@@ -51,7 +51,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className="dark" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning>
+      <head>
+        {/* 테마 FOUC 방지 — CSS보다 먼저 실행되어 깜빡임 제거 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body
         className={`${notoSansKr.variable} ${jua.variable} font-sans antialiased bg-background`}
       >
